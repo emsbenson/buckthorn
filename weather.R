@@ -10,7 +10,7 @@ library(ggplot2)
 #### Setting up directories 
 
 # Creating user numbers for each person
-UsersAll <- data.frame(userID = c(1,2), userName=c("Student lab","Professor Kropp"))
+UsersAll <- data.frame(userID = c(1,2,3), userName=c("Student lab","Professor Kropp", "emilybenson"))
 
 
 #most recent tomst download
@@ -24,15 +24,17 @@ TomstD2 <- "09_04_2021"
 
 # File path for meter data
 DirMeter <- c("c:/Google Drive/research/projects/Data/campus_weather/METER/CSV/12_z6-10463 12Oct21.csv",
-              "E:/Google Drive/research/projects/Data/campus_weather/METER/CSV/12_z6-10463 12Oct21.csv")
+              "E:/Google Drive/research/projects/Data/campus_weather/METER/CSV/12_z6-10463 12Oct21.csv",
+              "/Users/emilybenson/Desktop/campus_weather/METER/CSV/12_z6-10463 12Oct21.csv")
 
 
 
 DirTOMST <- c(paste0("c:/Google Drive/research/projects/Data/campus_weather/TOMST"),
-              paste0("E:/Google Drive/research/projects/Data/campus_weather/TOMST")) 
+              paste0("E:/Google Drive/research/projects/Data/campus_weather/TOMST"),
+              paste0("/Users/emilybenson/Desktop/campus_weather/TOMST")) 
 
 # Select user - change if needed
-user <- 2
+user <- 3
 
 ############################
 ########## Meter -----------
@@ -72,6 +74,7 @@ MeterMeta <- data.frame(name = c("Date","SolRad","Precip","LightningAct","Lightn
                         units = c("MM/DD/YYYY HH:MM",
                                   "W/m^2","mm","NA","km","degree","m/s","m/s","C",
                                   "kPa","kPa","degree","degree","mm/h","C","kPa","%","mV","kPa","C"))
+
 
 
 
@@ -188,9 +191,9 @@ removal$location <- rep("removal",nrow(removal))
 control$location <- rep("control",nrow(control))
 
 # loam calculation
-weather$SM.cor <- (-0.00000005*(weather$SM^2)) + (0.000398*weather$SM) -0.291
-removal$SM.cor <- (-0.00000005*(removal$SM^2)) + (0.000398*removal$SM) -0.291
-control$SM.cor <- (-0.00000005*(control$SM^2)) + (0.000398*control$SM) -0.291
+weather$SM.cor <- (-0.00000002*(weather$SM^2)) + (0.0003*weather$SM) -0.2062
+removal$SM.cor <- (-0.00000002*(removal$SM^2)) + (0.0003*removal$SM) -0.2062
+control$SM.cor <- (-0.00000002*(control$SM^2)) + (0.0003*control$SM) -0.2062
 
 
 TMSbind <- rbind(weather,removal,control)
@@ -208,3 +211,35 @@ rm(TMS1p2)
 rm(TMS2p2)
 rm(TMS3p1)
 rm(TMS3p2)
+
+ggplot(TMSbind[TMSbind$doy >= 189 & TMSbind$year == 2021,], aes(x = DD, y = SM.cor, color = as.factor(location)))+
+  geom_line()+
+  ggtitle("Soil Moisture Levels (Raw)")+
+  xlab("Date")+
+  ylab("SM")
+
+ggplot(TMSsub, aes(x = DD, y = Tm6, color = Legend))+
+  geom_line(aes(col = "Temperature"))+
+  ggtitle("Temp Levels 6 inches Below")+
+  xlab("Date")+
+  ylab("TEMP")
+
+meterTable2 <- meterTable[meterTable$doy >= 191 & meterTable$year == 2021,]
+
+meterTable2 <- na.omit(meterTable2)
+
+ggplot(meterTable2, aes(x = DD, y = Precip, color = Legend))+
+  geom_line(aes(color = "Precipitation"))+
+  scale_color_manual(values=c('Blue'))+
+  ggtitle("Precipitation Levels")+
+  xlab("Date")+
+  ylab("Precipitation (mm)")
+
+ggplot(meterTable2, aes(x = DD, y = VaporPr, color = Legend))+
+  geom_line(aes(color = "Vapor Pressure"))+
+  scale_color_manual(values=c('purple'))+
+  ggtitle("Vapor Pressure Levels")+
+  xlab("Date")+
+  ylab("VP (kPa)")
+
+
